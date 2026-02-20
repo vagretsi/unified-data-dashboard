@@ -14,7 +14,7 @@ export default function Dashboard() {
         <header className="flex justify-between items-end mb-20 border-l-2 border-indigo-500 pl-6">
           <div>
             <h1 className="text-4xl font-light tracking-tighter italic uppercase">Systems Intelligence</h1>
-            <p className="text-[10px] text-gray-500 tracking-[0.5em] uppercase mt-2">Node: srv1342343 • PostgreSQL Active</p>
+            <p className="text-[10px] text-gray-500 tracking-[0.5em] uppercase mt-2">Node: SRV001 • PostgreSQL Active</p>
           </div>
           <button onClick={() => refetch()} className="text-[10px] uppercase text-gray-400 hover:text-white flex items-center gap-2">
             <RefreshCw size={12} className={isFetching ? 'animate-spin' : ''} /> Sync
