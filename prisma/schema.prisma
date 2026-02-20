@@ -1,0 +1,19 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Metric {
+  id           Int      @id @default(autoincrement())
+  source_name  String   @db.VarChar(50)
+  metric_label String   @db.VarChar(100)
+  metric_value Decimal  @db.Decimal
+  status       String   @db.VarChar(20)
+  updated_at   DateTime @default(now()) @db.Timestamp(6)
+
+  @@map("metrics")
+}
