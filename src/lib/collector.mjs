@@ -42,7 +42,7 @@ async function collectAndStore() {
       {
         source_name: 'disk',
         metric_label: 'Free Disk (GB)',
-        metric_value: parseFloat(((disk[0]?.available ?? 0) / 1024 / 1024 / 1024).toFixed(1)),
+        metric_value: parseFloat(((disk[0]?.available ?? 0) / 1024 / 1024 / 1024).toFixed(2)),
         status: (disk[0]?.available ?? 0) < 5 * 1024 * 1024 * 1024 ? 'critical' : 'up',
       },
       {
@@ -85,4 +85,4 @@ async function collectAndStore() {
 
 collectAndStore();
 setInterval(collectAndStore, 30_000);
-console.log('🚀 Collector started — updating every 30 seconds');
+console.log('🚀 Collector started');
