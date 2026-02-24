@@ -1,7 +1,3 @@
-// src/lib/collector.ts
-// Run with: npx ts-node src/lib/collector.ts
-// Or add to package.json scripts: "collect": "ts-node src/lib/collector.ts"
-
 import si from 'systeminformation';
 import { PrismaClient } from '@prisma/client';
 
@@ -9,17 +5,15 @@ const prisma = new PrismaClient();
 
 async function collectAndStore() {
   try {
-    // Gather all metrics in parallel
-    const [cpu, mem, disk, time] = await Promise.all([
+    const [cpu, mem, disk] = await Promise.all([
       si.currentLoad(),
       si.mem(),
       si.fsSize(),
-      si.time(),
     ]);
 
     const now = new Date();
+    const realMemUsed = (mem.total - mem.available) / mem.total;
 
-    // Prepare upsert data
     const metrics = [
       {
         source_name: 'system',
@@ -30,14 +24,14 @@ async function collectAndStore() {
       {
         source_name: 'system',
         metric_label: 'Memory Usage',
-        metric_value: parseFloat((((mem.total - mem.available) / mem.total) * 100).toFixed(1)),
-        status: (mem.used / mem.total) > 0.85 ? 'critical' : (mem.used / mem.total) > 0.7 ? 'warning' : 'up',
+        metric_value: parseFloat((realMemUsed * 100).toFixed(1)),
+        status: realMemUsed > 0.85 ? 'critical' : realMemUsed > 0.7 ? 'warning' : 'up',
       },
       {
         source_name: 'system',
         metric_label: 'Free Memory (GB)',
-        metric_value: parseFloat((mem.free / 1024 / 1024 / 1024).toFixed(2)),
-        status: mem.free < 512 * 1024 * 1024 ? 'critical' : 'up',
+        metric_value: parseFloat((mem.available / 1024 / 1024 / 1024).toFixed(2)),
+        status: mem.available < 512 * 1024 * 1024 ? 'critical' : 'up',
       },
       {
         source_name: 'disk',
@@ -55,16 +49,13 @@ async function collectAndStore() {
         source_name: 'database',
         metric_label: 'DB Connection',
         metric_value: 1,
-        status: 'up', // if we got here, DB is up
+        status: 'up',
       },
     ];
 
-    // Upsert each metric (update if exists, insert if not)
     for (const metric of metrics) {
       await prisma.metric.upsert({
         where: {
-          // You need a unique constraint on source_name + metric_label
-          // See migration note below
           source_metric: {
             source_name: metric.source_name,
             metric_label: metric.metric_label,
@@ -85,18 +76,13 @@ async function collectAndStore() {
       });
     }
 
-    console.log(`[${now.toISOString()}] ✅ Metrics updated`);
-    console.log(`  CPU: ${metrics[0].metric_value}% (${metrics[0].status})`);
-    console.log(`  Memory: ${metrics[1].metric_value}% (${metrics[1].status})`);
-    console.log(`  Disk: ${metrics[3].metric_value}% (${metrics[3].status})`);
+    console.log(`[${now.toISOString()}] ✅ CPU: ${metrics[0].metric_value}% | RAM: ${metrics[1].metric_value}% | Disk: ${metrics[3].metric_value}%`);
 
   } catch (error) {
-    console.error('❌ Collector error:', error);
+    console.error('❌ Error:', error);
   }
 }
 
-// Run immediately, then every 30 seconds
 collectAndStore();
 setInterval(collectAndStore, 30_000);
-
 console.log('🚀 Collector started — updating every 30 seconds');
