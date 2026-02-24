@@ -15,5 +15,6 @@ model Metric {
   status       String   @db.VarChar(20)
   updated_at   DateTime @default(now()) @db.Timestamp(6)
 
+  @@unique([source_name, metric_label], name: "source_metric")
   @@map("metrics")
 }
