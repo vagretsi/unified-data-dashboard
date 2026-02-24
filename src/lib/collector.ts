@@ -30,7 +30,7 @@ async function collectAndStore() {
       {
         source_name: 'system',
         metric_label: 'Memory Usage',
-        metric_value: parseFloat(((mem.used / mem.total) * 100).toFixed(1)),
+        metric_value: parseFloat((((mem.total - mem.available) / mem.total) * 100).toFixed(1)),
         status: (mem.used / mem.total) > 0.85 ? 'critical' : (mem.used / mem.total) > 0.7 ? 'warning' : 'up',
       },
       {
