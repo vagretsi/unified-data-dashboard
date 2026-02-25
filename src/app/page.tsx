@@ -9,7 +9,7 @@ export default function Dashboard() {
   });
 
   return (
-    <main className="min-h-screen text-white p-8 md:p-12 selection:bg-indigo-500/30">
+    <main className="min-h-screen bg-[#050505] text-white p-8 md:p-12 selection:bg-indigo-500/30">
       <div className="max-w-6xl mx-auto">
         <header className="flex justify-between items-end mb-20 border-l-2 border-indigo-500 pl-6">
           <div>
@@ -32,7 +32,7 @@ export default function Dashboard() {
                   <div className={`w-2 h-2 rounded-full ${m.status === 'up' ? 'bg-emerald-500' : 'bg-rose-500'} animate-pulse`} />
                 </div>
                 <h3 className="text-gray-400 text-[11px] font-bold uppercase mb-1">{m.label}</h3>
-                <span className="text-4xl font-light italic text-indigo-600 dark:text-white">{m.value}</span>
+                <span className="text-4xl font-light italic">{m.value}</span>
               </div>
             ))
           )}
