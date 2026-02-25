@@ -32,7 +32,7 @@ export default function Dashboard() {
                   <div className={`w-2 h-2 rounded-full ${m.status === 'up' ? 'bg-emerald-500' : 'bg-rose-500'} animate-pulse`} />
                 </div>
                 <h3 className="text-gray-400 text-[11px] font-bold uppercase mb-1">{m.label}</h3>
-                <span className="text-4xl font-light italic text-gray-900">{m.value}</span>
+                <span className="text-4xl font-light italic text-white">{m.value}</span>
               </div>
             ))
           )}
