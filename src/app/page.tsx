@@ -9,14 +9,14 @@ export default function Dashboard() {
   });
 
   return (
-    <main className="min-h-screen bg-[#050505] text-white p-8 md:p-12 selection:bg-indigo-500/30">
+    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] p-8 md:p-12 selection:bg-indigo-500/30">
       <div className="max-w-6xl mx-auto">
         <header className="flex justify-between items-end mb-20 border-l-2 border-indigo-500 pl-6">
           <div>
             <h1 className="text-4xl font-light tracking-tighter italic uppercase">Systems Intelligence</h1>
             <p className="text-[10px] text-gray-500 tracking-[0.5em] uppercase mt-2">Node: SRV001 • PostgreSQL Active</p>
           </div>
-          <button onClick={() => refetch()} className="text-[10px] uppercase text-gray-400 hover:text-white flex items-center gap-2">
+          <button onClick={() => refetch()} className="text-[10px] uppercase text-gray-400 hover:text-[var(--foreground)] flex items-center gap-2">
             <RefreshCw size={12} className={isFetching ? 'animate-spin' : ''} /> Sync
           </button>
         </header>
@@ -32,7 +32,7 @@ export default function Dashboard() {
                   <div className={`w-2 h-2 rounded-full ${m.status === 'up' ? 'bg-emerald-500' : 'bg-rose-500'} animate-pulse`} />
                 </div>
                 <h3 className="text-gray-400 text-[11px] font-bold uppercase mb-1">{m.label}</h3>
-                <span className="text-4xl font-light italic text-white">{m.value}</span>
+                <span className="text-4xl font-light italic text-[var(--foreground)]">{m.value}</span>
               </div>
             ))
           )}
