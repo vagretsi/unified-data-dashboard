@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Unified Data Dashboard
 
-## Getting Started
+A real-time systems intelligence dashboard built with Next.js that monitors and displays server metrics — CPU, memory, disk usage, and database connectivity — collected automatically every 30 seconds and persisted in PostgreSQL.
 
-First, run the development server:
+## Features
+
+- **Live system metrics** — CPU usage, memory usage, free memory, disk usage, free disk space, DB connection status
+- **Auto-collection** — background collector runs every 30 seconds via `src/lib/collector.ts`
+- **Persistent storage** — metrics are upserted into PostgreSQL, keeping one record per source/metric pair
+- **Status indicators** — color-coded thresholds (up / warning / critical) with animated dot indicators
+- **Manual refresh** — sync button to pull the latest data on demand
+- **Responsive layout** — 1-column on mobile, 3-column grid on desktop
+- **Dark/light mode** — adapts to system preference via CSS variables
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| UI | React 19, Tailwind CSS v4, Lucide React |
+| Data fetching | TanStack React Query v5 |
+| ORM | Prisma v6 |
+| Database | PostgreSQL |
+| Language | TypeScript 5 |
+| Compiler | React Compiler (auto-memoization) |
+
+## Prerequisites
+
+- Node.js 18+
+- PostgreSQL database
+- `systeminformation` package (see below)
+
+## Setup
+
+**1. Install dependencies**
+
+```bash
+npm install
+npm install systeminformation
+```
+
+> `systeminformation` is required by the collector but not yet listed in `package.json` — install it manually.
+
+**2. Configure environment**
+
+Create a `.env.local` file in the project root:
+
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/your_db
+```
+
+**3. Run database migrations**
+
+```bash
+npx prisma migrate dev
+```
+
+**4. Start the development server**
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/
+│   ├── api/stats/route.ts   # GET /api/stats — fetches all metrics from DB
+│   ├── layout.tsx           # Root layout, metadata, fonts
+│   ├── page.tsx             # Main dashboard UI
+│   └── globals.css          # Tailwind base + CSS theme variables
+├── components/
+│   └── Providers.tsx        # React Query provider
+└── lib/
+    ├── collector.ts         # System metrics collector (runs on import)
+    └── prisma.ts            # Prisma client singleton
 
-## Learn More
+prisma/
+└── schema.prisma            # Metric model definition
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Database Schema
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```prisma
+model Metric {
+  id           Int      @id @default(autoincrement())
+  source_name  String   @db.VarChar(50)
+  metric_label String   @db.VarChar(100)
+  metric_value Decimal  @db.Decimal
+  status       String   @db.VarChar(20)
+  updated_at   DateTime @default(now()) @db.Timestamp(6)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+  @@unique([source_name, metric_label])
+  @@map("metrics")
+}
+```
 
-## Deploy on Vercel
+Each metric is identified by a `(source_name, metric_label)` pair and upserted on every collection cycle.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Metric Thresholds
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Metric | Warning | Critical |
+|---|---|---|
+| CPU Usage | > 60% | > 80% |
+| Memory Usage | > 70% | > 85% |
+| Free Memory | — | < 512 MB |
+| Disk Usage | > 75% | > 90% |
+| Free Disk | — | < 5 GB |
+| DB Connection | — | — (always up) |
+
+## Available Scripts
+
+```bash
+npm run dev      # Start development server
+npm run build    # Build for production
+npm start        # Start production server
+npm run lint     # Run ESLint
+```
