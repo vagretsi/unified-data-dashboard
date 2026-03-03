@@ -1,6 +1,7 @@
 {
   "name": "unified-data-dashboard",
   "version": "0.1.0",
+  "description": "Real-time systems intelligence dashboard that monitors CPU, memory, and disk metrics, collected every 30 seconds and persisted in PostgreSQL.",
   "private": true,
   "scripts": {
     "dev": "next dev",
